@@ -22,34 +22,35 @@ const API_KEY = "live_2sokiV4sOfWX5oM856usxf2mP9niGyUJ7DnZcNYKs5ZMzkwoEP5JSWWRl1
  * This function should execute immediately.
  */
 async function initialLoad() {
-  try {
-    const response = await fetch(
-      "https://api.thecatapi.com/v1/breeds",
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
+    try {
+        const response = await fetch(
+            "https://api.thecatapi.com/v1/breeds",
+            {
+                headers: {
+                    "x-api-key": API_KEY,
+                },
+            }
+        );
 
-    console.log("Response:", response);
 
-    const breeds = await response.json();
+        console.log("Response:", response);
 
-    console.log("Breeds:", breeds);
-    console.log("breedSelect:", breedSelect);
+        const breeds = await response.json();
 
-    breeds.forEach((breed) => {
-      const option = document.createElement("option");
+        console.log("Breeds:", breeds);
+        console.log("breedSelect:", breedSelect);
 
-      option.value = breed.id;
-      option.textContent = breed.name;
+        breeds.forEach((breed) => {
+            const option = document.createElement("option");
 
-      breedSelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Error loading breeds:", error);
-  }
+            option.value = breed.id;
+            option.textContent = breed.name;
+
+            breedSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error loading breeds:", error);
+    }
 }
 
 initialLoad();
@@ -73,7 +74,7 @@ async function handleBreedSelect() {
     try {
         const selectedBreedId = breedSelect.value;
 
-        const response = await fetch (`https//api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedId}&limit=10`.
+        const response = await fetch(`https//api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedId}&limit=10`.
             {
                 headers: {
                     "x-api-key": API_KEY,
@@ -81,21 +82,31 @@ async function handleBreedSelect() {
             }
         );
 
-        if(!response.ok) {
+        if (!response.ok) {
             throw new Error(`Request failed: ${response.status}`);
         }
 
         const breedImages = await response.json();
 
-        
+        const breed = breedImages[0].breeds[0];
+
+        infoDump.innerHTML = `
+        <h2>${breed.name}</h2>
+        <p><strong>Origin:</strong> ${breed.origin}</p>
+        <p><strong>Temperament:</strong> ${breed.temperament}</p>
+        <p>${breed.description}</p>`;
 
         // carousel
         Carousel.clear();
 
         breedImages.forEach((image) => {
-            const carouselItem = Carousel.createCarouselItem(image.url,image.breeds[0].name, image.id);
+            const carouselItem = Carousel.createCarouselItem(
+                image.url,
+                breed.name,
+                image.id
+            );
+
             Carousel.appendCarousel(carouselItem);
-            // console.log(image);
         });
 
         Carousel.start();
@@ -103,7 +114,9 @@ async function handleBreedSelect() {
         console.log("Selected breed ID:", selectedBreedId);
         console.log("Breed images:", breedImages);
     } catch (error) {
-        console.log("Error loading breed information:", error)
+        console.error(error);
+
+        infoDump.innerHTML = `<p>Sorry, someting is wrong while loading this breed</p>`;
     }
 }
 breedSelect.addEventListener("change", handleBreedSelect);
