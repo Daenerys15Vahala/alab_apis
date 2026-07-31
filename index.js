@@ -87,8 +87,18 @@ async function handleBreedSelect() {
 
         const breedImages = await response.json();
 
+        
+
         // carousel
         Carousel.clear();
+
+        breedImages.forEach((image) => {
+            const carouselItem = Carousel.createCarouselItem(image.url,image.breeds[0].name, image.id);
+            Carousel.appendCarousel(carouselItem);
+            // console.log(image);
+        });
+
+        Carousel.start();
 
         console.log("Selected breed ID:", selectedBreedId);
         console.log("Breed images:", breedImages);
