@@ -22,20 +22,38 @@ const API_KEY = "live_2sokiV4sOfWX5oM856usxf2mP9niGyUJ7DnZcNYKs5ZMzkwoEP5JSWWRl1
  * This function should execute immediately.
  */
 async function initialLoad() {
-    try {
-        const response = await fetch("https://api.thecatapi.com/v1/breeds", {
-            headers: {
-                "x-api-key": API_KEY,
-            },
-        });
+  try {
+    const response = await fetch(
+      "https://api.thecatapi.com/v1/breeds",
+      {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      }
+    );
 
-        console.log(response);
-    } catch (error) {
-        console.error("Error loading breeds:", error);
-    }
+    console.log("Response:", response);
+
+    const breeds = await response.json();
+
+    console.log("Breeds:", breeds);
+    console.log("breedSelect:", breedSelect);
+
+    breeds.forEach((breed) => {
+      const option = document.createElement("option");
+
+      option.value = breed.id;
+      option.textContent = breed.name;
+
+      breedSelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error loading breeds:", error);
+  }
 }
 
 initialLoad();
+
 /**
  * 2. Create an event handler for breedSelect that does the following:
  * - Retrieve information on the selected breed from the cat API using fetch().
@@ -50,6 +68,33 @@ initialLoad();
  * - Each new selection should clear, re-populate, and restart the Carousel.
  * - Add a call to this function to the end of your initialLoad function above to create the initial carousel.
  */
+
+async function handleBreedSelect() {
+    try {
+        const selectedBreedId = breedSelect.value;
+
+        const response = await fetch (`https//api.thecatapi.com/v1/images/search?breed_ids=${selectedBreedId}&limit=10`.
+            {
+                headers: {
+                    "x-api-key": API_KEY,
+                },
+            }
+        );
+
+        if(!response.ok) {
+            throw new Error(`Request failed: ${response.status}`);
+        }
+
+        const breedImages = await response.json();
+
+        console.log("Selected breed ID:", selectedBreedId);
+        console.log("Breed images:", breedImages);
+    } catch (error) {
+        console.log("Error loading breed information:", error)
+    }
+}
+breedSelect.addEventListener("change", handleBreedSelect);
+
 
 /**
  * 3. Fork your own sandbox, creating a new one named "JavaScript Axios Lab."
@@ -103,7 +148,7 @@ initialLoad();
  * - You can call this function by clicking on the heart at the top right of any image.
  */
 export async function favourite(imgId) {
-  // your code here
+    // your code here
 }
 
 /**
